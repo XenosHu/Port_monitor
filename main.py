@@ -9,20 +9,39 @@ import plotly.graph_objects as go
 import plotly.express as px
 import requests
 
+# def get_data(symbol, start_date, end_date):
+#     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=IAGDKXNPPS0NVXYR'
+#     r = requests.get(url)
+#     data = r.json()
+#     time_series = data['Time Series (Daily)']
+#     start_date = datetime.datetime.combine(start_date, datetime.datetime.min.time())
+#     end_date = datetime.datetime.combine(end_date, datetime.datetime.min.time())
+
+#     start_timestamp = int(start_date.timestamp())
+#     end_timestamp = int(end_date.timestamp())
+#     filtered_data = {date: values for date, values in time_series.items() 
+#                      if start_timestamp <= datetime.datetime.strptime(date, '%Y-%m-%d').timestamp() <= end_timestamp}
+#     return filtered_data
+
 def get_data(symbol, start_date, end_date):
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=IAGDKXNPPS0NVXYR'
     r = requests.get(url)
     data = r.json()
     time_series = data['Time Series (Daily)']
+
+    # Convert start_date and end_date to datetime objects
     start_date = datetime.datetime.combine(start_date, datetime.datetime.min.time())
     end_date = datetime.datetime.combine(end_date, datetime.datetime.min.time())
 
-    start_timestamp = int(start_date.timestamp())
-    end_timestamp = int(end_date.timestamp())
     filtered_data = {date: values for date, values in time_series.items() 
-                     if start_timestamp <= datetime.datetime.strptime(date, '%Y-%m-%d').timestamp() <= end_timestamp}
+                     if start_date <= datetime.datetime.strptime(date, '%Y-%m-%d') <= end_date}
+    
+    df = pd.DataFrame(filtered_data).T.reset_index()
+    df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+    df['date'] = pd.to_datetime(df['date'])
+    filtered_data = df
     return filtered_data
-
+    
 def fetch_candlestick_data(ticker):
     end_date = int(time.time())
     start_date = int(time.mktime((datetime.datetime.now() - datetime.timedelta(days=365)).timetuple()))
