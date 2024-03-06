@@ -198,7 +198,7 @@ def main():
             else:
                 coin_percentages = [buttons.get(coin, 0) for coin in selected_coins]
 
-                end_date = datetime.date.today()
+                end_date = datetime.datetime.now().date()
                 start_date = end_date - datetime.timedelta(days=365)
 
                 data = {}
