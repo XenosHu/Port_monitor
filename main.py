@@ -25,6 +25,7 @@ import requests
 
 def get_data(symbol, start_date, end_date):
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=IAGDKXNPPS0NVXYR'
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=D43BNKTSJQMGD8GN'
     r = requests.get(url)
     data = r.json()
     st.write(data)
@@ -165,6 +166,7 @@ def main():
                     data[symbol] = get_data(symbol, start_date, end_date)
                 
                 st.write(data)
+                st.write(selected_coins)
 
                 df = pd.DataFrame.from_dict({(i, j): data[i][j] 
                                               for i in data.keys() 
