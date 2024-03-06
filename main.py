@@ -35,11 +35,12 @@ def get_data(symbol, start_date, end_date):
 
     filtered_data = {date: values for date, values in time_series.items() 
                      if start_date <= datetime.datetime.strptime(date, '%Y-%m-%d') <= end_date}
-    
+
+    # Create a DataFrame from the filtered data
     df = pd.DataFrame.from_dict(filtered_data, orient='index')
-    df.reset_index(inplace=True)
+    df.index = pd.to_datetime(df.index)
+    df = df.reset_index()
     df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
-    df['date'] = pd.to_datetime(df['date'])
     filtered_data = df
     return filtered_data
     
