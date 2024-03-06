@@ -72,7 +72,10 @@ if st.button("Analyse"):
     else:
         selected_coins = list(buttons.keys())
         coin_percentages = list(buttons.values())
+        # coin_percentages = [buttons.get(coin, 0) for coin in selected_coins]
 
+        end_date = datetime.datetime.now().date()
+        start_date = end_date - datetime.timedelta(days=365)
         data = {}
         
         for symbol in selected_coins:
