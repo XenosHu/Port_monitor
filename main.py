@@ -13,15 +13,12 @@ def get_data(symbol, start_date, end_date):
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=IAGDKXNPPS0NVXYR'
     r = requests.get(url)
     data = r.json()
-    
-    if 'Time Series (Daily)' in data:
-        time_series = data['Time Series (Daily)']
-        filtered_data = {date: values for date, values in time_series.items() 
-                         if start_date <= datetime.datetime.strptime(date, '%Y-%m-%d').timestamp() <= end_date}
-        return filtered_data
-    
-    return None
-
+    time_series = data['Time Series (Daily)']
+    start_timestamp = start_date.timestamp()
+    end_timestamp = end_date.timestamp()
+    filtered_data = {date: values for date, values in time_series.items() 
+                     if start_timestamp <= datetime.datetime.strptime(date, '%Y-%m-%d').timestamp() <= end_timestamp}
+    return filtered_data
 
 def fetch_candlestick_data(ticker):
     end_date = int(time.time())
