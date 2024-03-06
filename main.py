@@ -84,6 +84,8 @@ if st.button("Analyse"):
         for symbol in selected_coins:
             data[symbol] = get_data(symbol, start_date, end_date)
         df = inner_join_and_select_close(data, 'date')
+        df = df.apply(pd.to_numeric, errors='coerce')
+        # df['4. close'] = pd.to_numeric(df['4. close'], errors='coerce')
         
         users_risk, users_return = efficient_frontier.users_point(df, coin_percentages)
         df, risk, returns = efficient_frontier.efficient_frontier(df, n_portfolios)
