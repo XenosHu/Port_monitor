@@ -188,11 +188,10 @@ def users_point1(df, coin_weight):
 def users_point(df, coin_weight):
     # Select only numeric columns for covariance calculation
     numeric_cols = df.select_dtypes(include=[np.number]).columns
-    df_numeric = df[numeric_cols]
-
-    # Check if there are numeric columns
-    if df_numeric.empty:
+    if len(numeric_cols) == 0:
         raise ValueError("No numeric columns found for covariance calculation")
+    
+    df_numeric = df[numeric_cols]
 
     # Calculate the covariance matrix for the portfolio
     portfolio_covariance = df_numeric.cov()
