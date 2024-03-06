@@ -172,20 +172,25 @@ def main():
                 #                               for i in data.keys() 
                 #                               for j in data[i].keys()},
                 #                              orient='index')
-                df = pd.DataFrame.from_dict(data, orient='index').T
+                dfs = []
+                for symbol, symbol_data in data.items():
+                    df = pd.DataFrame(symbol_data)
+                    df['symbol'] = symbol  # Add a 'symbol' column
+                    dfs.append(df)
+                
+                # Concatenate all DataFrames into a single DataFrame
+                df = pd.concat(dfs, ignore_index=True)
 
                 # Assuming '4. close' is the column containing closing prices
-                st.write(df)
-                st.write(df.columns)
-                df['4. close'] = pd.to_numeric(df['4. close'], errors='coerce')
+                # df['4. close'] = pd.to_numeric(df['4. close'], errors='coerce')
 
-                # Reshape DataFrame
-                df.reset_index(inplace=True)
-                df['index'] = pd.to_datetime(df['index'])
-                df.set_index('index', inplace=True)
-                df.columns = selected_coins
+                # # Reshape DataFrame
+                # df.reset_index(inplace=True)
+                # df['index'] = pd.to_datetime(df['index'])
+                # df.set_index('index', inplace=True)
+                # df.columns = selected_coins
 
-                ef_df, portfolio_stds, portfolio_returns = efficient_frontier(df[selected_coins], n_portfolios)
+                ef_df, portfolio_stds, portfolio_returns = efficient_frontier(df, n_portfolios)
 
                 fig = go.Figure()
                 for i, row in ef_df.iterrows():
