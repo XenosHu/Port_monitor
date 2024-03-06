@@ -83,6 +83,8 @@ if st.button("Analyse"):
         
         for symbol in selected_coins:
             data[symbol] = get_data(symbol, start_date, end_date)
+            st.write(data[symbol])
+        
         df = inner_join_and_select_close(data, 'date')
         df = df.apply(pd.to_numeric, errors='coerce')
         # df['4. close'] = pd.to_numeric(df['4. close'], errors='coerce')
