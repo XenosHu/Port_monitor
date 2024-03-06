@@ -190,6 +190,10 @@ def users_point(df, coin_weight):
     numeric_cols = df.select_dtypes(include=[np.number]).columns
     df_numeric = df[numeric_cols]
 
+    # Check if there are numeric columns
+    if df_numeric.empty:
+        raise ValueError("No numeric columns found for covariance calculation")
+
     # Calculate the covariance matrix for the portfolio
     portfolio_covariance = df_numeric.cov()
 
@@ -204,11 +208,13 @@ def users_point(df, coin_weight):
     # Calculate the expected return value of the random portfolio.
     for i in range(0, len(coin_names)):
         portfolio_return += coin_weight[i] * coin_means[i]
-    #---Calculate variance, use it for the deviation.
+    
+    # Calculate variance, use it for the deviation.
     portfolio_variance = np.dot(np.dot(coin_weight.transpose(), portfolio_covariance), coin_weight)
     portfolio_std = np.sqrt(portfolio_variance)
 
     return portfolio_std, portfolio_return
+
 
 def main():
     st.title('Nasdaq Portfolio Analysis')
