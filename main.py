@@ -7,6 +7,7 @@ import time
 import datetime
 import plotly.graph_objects as go
 import plotly.express as px
+import requests
 
 def get_data(symbol, start_date, end_date):
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=IAGDKXNPPS0NVXYR'
