@@ -36,7 +36,8 @@ def get_data(symbol, start_date, end_date):
     filtered_data = {date: values for date, values in time_series.items() 
                      if start_date <= datetime.datetime.strptime(date, '%Y-%m-%d') <= end_date}
     
-    df = pd.DataFrame(filtered_data).T.reset_index()
+    df = pd.DataFrame.from_dict(filtered_data, orient='index')
+    df.reset_index(inplace=True)
     df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
     df['date'] = pd.to_datetime(df['date'])
     filtered_data = df
