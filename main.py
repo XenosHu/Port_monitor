@@ -251,7 +251,7 @@ def main():
                 for i, row in ef_df.iterrows():
                     fig.add_trace(go.Scatter(x=[row['Risk']], y=[row['Return']], mode='markers', marker=dict(color='blue')))
 
-                users_risk, users_return = users_point(df[selected_coins], coin_percentages)
+                users_risk, users_return = users_point(df, coin_percentages)
                 fig.add_trace(go.Scatter(x=[users_risk], y=[users_return], mode='markers', marker=dict(color='green'), name='Your Portfolio'))
 
                 df_optimal_return = find_optimal_return(ef_df, users_risk)
