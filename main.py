@@ -10,7 +10,7 @@ import plotly.express as px
 import requests
 import csv
 import efficient_frontier
-api_keys = ['SP0WLT8CFK7U37W5','IAGDKXNPPS0NVXYR','D43BNKTSJQMGD8GN','OJNW3X2DPYL5RRML']
+api_keys = ['HT1G2XMDLX9434J6','SP0WLT8CFK7U37W5','IAGDKXNPPS0NVXYR','D43BNKTSJQMGD8GN','OJNW3X2DPYL5RRML']
 def get_data_from_alpha_vantage(symbol, api_key_index=0):
     #url = f'https://www.alphavantage.co/query?function={function}&symbol={symbol}&apikey={api_keys[api_key_index]}'
     url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey={api_keys[api_key_index]}'
