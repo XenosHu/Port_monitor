@@ -161,7 +161,7 @@ def main():
                 data = {}
                 for symbol in selected_coins:
                     data[symbol] = get_data(symbol, start_date, end_date)
-
+                    st.write(data[symbol])
                 df = pd.DataFrame.from_dict({(i, j): data[i][j] 
                                               for i in data.keys() 
                                               for j in data[i].keys()},
