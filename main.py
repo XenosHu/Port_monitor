@@ -43,7 +43,7 @@ def inner_join_and_select_close(dataframes, column_name):
     result_df = joined_df[close_columns]
 
     # Rename the columns to remove the "close_" prefix
-    result_df.columns = [col.split('_')[1] for col in result_df.columns]
+    result_df.columns = [col.split('_')[1] if len(col.split('_')) > 1 else col for col in result_df.columns]
 
     return result_df
 
