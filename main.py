@@ -10,16 +10,35 @@ import plotly.express as px
 import requests
 import csv
 import efficient_frontier
-
+api_keys = ['SP0WLT8CFK7U37W5','IAGDKXNPPS0NVXYR','D43BNKTSJQMGD8GN','OJNW3X2DPYL5RRML']
+def get_data_from_alpha_vantage(api_key_index=0):
+    #url = f'https://www.alphavantage.co/query?function={function}&symbol={symbol}&apikey={api_keys[api_key_index]}'
+    url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey={api_keys[api_key_index]}'
+    response = requests.get(url)
+    if response.status_code == 200:
+        # Check if the response indicates the API key limit has been reached
+        if "exceeded the maximum" in response.text:
+            # If limit is reached, switch to the next API key
+            api_key_index = (api_key_index + 1) % len(api_keys)
+            return get_data_from_alpha_vantage(api_key_index)
+        else:
+            # Parse and return the JSON response
+            return response.json()
+    else:
+        # Handle the error response
+        print(f"Error: {response.status_code}")
+        return None
 
 def get_data(symbol, start_date, end_date):
     # url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=IAGDKXNPPS0NVXYR'
     # url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=D43BNKTSJQMGD8GN'
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=OJNW3X2DPYL5RRML'
-    
-    r = requests.get(url)
-    data = r.json()
+    # url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=OJNW3X2DPYL5RRML'
+    # SP0WLT8CFK7U37W5
+    # r = requests.get(url)
+    # data = r.json()
     # st.write(data)
+    
+    data = get_data_from_alpha_vantage()
     
     time_series = data['Time Series (Daily)']
     filtered_data = [(date, values['1. open'], values['2. high'], values['3. low'], values['4. close'], values['5. volume'])
