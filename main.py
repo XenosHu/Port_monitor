@@ -3,7 +3,52 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
+import time
+import datetime
+import plotly.graph_objects as go
+import plotly.express as px
 
+def get_data(symbol, start_date, end_date):
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=IAGDKXNPPS0NVXYR'
+    r = requests.get(url)
+    data = r.json()
+    
+    if 'Time Series (Daily)' in data:
+        time_series = data['Time Series (Daily)']
+        filtered_data = {date: values for date, values in time_series.items() 
+                         if start_date <= datetime.datetime.strptime(date, '%Y-%m-%d').timestamp() <= end_date}
+        return filtered_data
+    
+    return None
+
+
+def fetch_candlestick_data(ticker):
+    end_date = int(time.time())
+    start_date = int(time.mktime((datetime.datetime.now() - datetime.timedelta(days=365)).timetuple()))
+    data = get_data(ticker, start_date, end_date)
+    return data
+
+# fetch_candlestick_data("AAPL")
+def create_line_chart(symbols):
+    end_date = int(time.time())
+    start_date = int(time.mktime((datetime.datetime.now() - datetime.timedelta(days=365)).timetuple()))
+    
+    fig = go.Figure()
+    colors = px.colors.qualitative.Plotly  # Get the qualitative color palette from Plotly Express
+    for i, symbol in enumerate(symbols):
+        data = get_data(symbol, start_date, end_date)
+        if data:
+            dates = [datetime.datetime.strptime(date, '%Y-%m-%d') for date in data.keys()]
+            prices = [float(data[date]['4. close']) for date in data.keys()]
+            fig.add_trace(go.Scatter(x=dates, y=prices, mode='lines', name=symbol, line=dict(color=colors[i % len(colors)])))
+
+    fig.update_layout(title="Stock Prices",
+                      xaxis_title="Date",
+                      yaxis_title="Price ($)",
+                      xaxis_rangeslider_visible=False)
+
+    return fig
+    
 def efficient_frontier(df, n_portfolios=100):
     # Calculate the covariance matrix for the portfolio.
     portfolio_covariance = df.cov()
@@ -74,16 +119,16 @@ def users_point(df, coin_weight):
     return portfolio_std, portfolio_return
 
 def main():
-    st.title('Cryptocurrency Portfolio Analysis')
-    st.write('Select cryptocurrencies and their weights to analyze the efficient frontier of your portfolio.')
+    st.title('Nasdaq Portfolio Analysis')
+    st.write('Select tickers and their weights to analyze the efficient frontier of your portfolio.')
 
-    nasdaq_tickers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'FB', 'TSLA', 'NVDA']  # Example tickers, replace with your list of tickers
+    nasdaq_tickers = pd.DataFrame(pd.read_csv("nasdaq-listed.csv"))
 
-    selected_coins = st.multiselect(label="Select cryptocurrencies by exchange code.", options=nasdaq_tickers)
+    selected_coins = st.multiselect(label="Select tickers: ", options=nasdaq_tickers)
 
     buttons = {}
     if selected_coins != []:
-        st.markdown("Enter the percentage each cryptocurrency contributes to your portfolio's total value.")
+        st.markdown("Enter the percentage each tickers contributes to your portfolio's total value.")
         for coin_code in selected_coins:
             buttons[coin_code] = st.number_input(coin_code, 0, 100, key=coin_code)
 
@@ -91,7 +136,7 @@ def main():
 
         if st.button("Analyse"):
             if len(selected_coins) < 2:
-                st.warning("You must enter at least two cryptocurrencies")
+                st.warning("You must enter at least two tickers")
             elif sum(buttons.values()) != 100:
                 st.warning("Portfolio total is not 100%.")
             else:
