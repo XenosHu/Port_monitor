@@ -168,6 +168,8 @@ def main():
                                              orient='index')
 
                 # Assuming '4. close' is the column containing closing prices
+                st.write(df)
+                st.write(df.columns)
                 df['4. close'] = pd.to_numeric(df['4. close'], errors='coerce')
 
                 # Reshape DataFrame
