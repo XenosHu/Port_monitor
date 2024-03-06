@@ -9,6 +9,9 @@ import plotly.graph_objects as go
 import plotly.express as px
 import requests
 
+start_date = datetime.datetime.combine(start_date, datetime.datetime.min.time())
+end_date = datetime.datetime.combine(end_date, datetime.datetime.min.time())
+
 def get_data(symbol, start_date, end_date):
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=IAGDKXNPPS0NVXYR'
     r = requests.get(url)
