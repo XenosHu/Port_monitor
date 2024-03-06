@@ -14,6 +14,9 @@ def get_data(symbol, start_date, end_date):
     r = requests.get(url)
     data = r.json()
     time_series = data['Time Series (Daily)']
+    start_date = datetime.datetime.combine(start_date, datetime.datetime.min.time())
+    end_date = datetime.datetime.combine(end_date, datetime.datetime.min.time())
+
     start_timestamp = int(start_date.timestamp())
     end_timestamp = int(end_date.timestamp())
     filtered_data = {date: values for date, values in time_series.items() 
