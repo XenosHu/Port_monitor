@@ -242,7 +242,7 @@ def main():
                 # df.set_index('index', inplace=True)
                 # df.columns = selected_coins
 
-                ef_df, portfolio_stds, portfolio_returns = efficient_frontier(df, n_portfolios)
+                ef_df, portfolio_stds, portfolio_returns = efficient_frontier(df[selected_coins], n_portfolios)
 
                 fig = go.Figure()
                 for i, row in ef_df.iterrows():
