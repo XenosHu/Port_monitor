@@ -64,7 +64,7 @@ def create_line_chart(symbols):
 
     return fig
     
-def efficient_frontier(df, n_portfolios=100):
+def efficient_frontier1(df, n_portfolios=100):
     # Calculate the covariance matrix for the portfolio.
     portfolio_covariance = df.cov()
 
@@ -76,6 +76,58 @@ def efficient_frontier(df, n_portfolios=100):
 
     coin_names = df.columns
     coin_means = df.mean().to_numpy()
+
+    # Generate data, giving each coin a random weight.
+    while len(portfolio_stds) < n_portfolios:
+        # Initial values.
+        check = False
+        portfolio_return = 0
+
+        # Make a portfolio with random weights for each coin.
+        coin_weight = np.random.random(len(coin_names))
+        # Normalise to 1.
+        coin_weight /= np.sum(coin_weight)
+
+        # Calculate the expected return value of the random portfolio.
+        for i in range(len(coin_names)):
+            portfolio_return += coin_weight[i] * coin_means[i]
+        #---Calculate variance, use it for the deviation.
+        portfolio_variance = np.dot(np.dot(coin_weight.transpose(), portfolio_covariance), coin_weight)
+        portfolio_std = np.sqrt(portfolio_variance)
+
+        pair.append([portfolio_return, portfolio_std])
+        for R,V in pair:
+            if (R > portfolio_return) and (V < portfolio_std):
+                check = True
+                break
+        if check:
+            continue
+
+        portfolio_stds.append(portfolio_std)
+        portfolio_returns.append(portfolio_return)
+        coin_weights.append([i * 100 for i in coin_weight])
+
+    ef_df = pd.DataFrame(coin_weights)
+    ef_df.columns = coin_names
+    ef_df.insert(0, "Return", portfolio_returns, True)
+    ef_df.insert(1, "Risk", portfolio_stds, True)
+    return ef_df, portfolio_stds, portfolio_returns
+def efficient_frontier(df, n_portfolios=100):
+    # Select only numeric columns for covariance calculation
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    df_numeric = df[numeric_cols]
+
+    # Calculate the covariance matrix for the portfolio
+    portfolio_covariance = df_numeric.cov()
+
+    # Lists to store weights, returns and risk values.
+    portfolio_returns = []
+    portfolio_stds = []
+    coin_weights = []
+    pair = []
+
+    coin_names = df_numeric.columns
+    coin_means = df_numeric.mean().to_numpy()
 
     # Generate data, giving each coin a random weight.
     while len(portfolio_stds) < n_portfolios:
