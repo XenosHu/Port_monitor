@@ -28,19 +28,10 @@ def get_data(symbol, start_date, end_date):
     r = requests.get(url)
     data = r.json()
     time_series = data['Time Series (Daily)']
-
-    # Convert start_date and end_date to datetime objects
-    start_date = datetime.datetime.combine(start_date, datetime.datetime.min.time())
-    end_date = datetime.datetime.combine(end_date, datetime.datetime.min.time())
-
-    filtered_data = {date: values for date, values in time_series.items() 
-                     if start_date <= datetime.datetime.strptime(date, '%Y-%m-%d') <= end_date}
-
-    # Create a DataFrame from the filtered data
-    df = pd.DataFrame.from_dict(filtered_data, orient='index')
-    df.index = pd.to_datetime(df.index)
-    df = df.reset_index()
-    df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+    filtered_data = [(date, values['1. open'], values['2. high'], values['3. low'], values['4. close'], values['5. volume'])
+                     for date, values in time_series.items() 
+                     if start_date <= datetime.datetime.strptime(date, '%Y-%m-%d').date() <= end_date]
+    df = pd.DataFrame(filtered_data, columns=['date', 'open', 'high', 'low', 'close', 'volume'])
     filtered_data = df
     return filtered_data
     
