@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 from Historic_Crypto import HistoricalData
 
 
+
+
+
+
 def load_fund_data(path='Funds.csv'):
     data = pd.read_csv(path)
     df = pd.DataFrame(data)
