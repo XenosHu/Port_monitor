@@ -232,6 +232,9 @@ def main():
                 
                 # Concatenate all DataFrames into a single DataFrame
                 df = pd.concat(dfs, ignore_index=True)
+                st.write(df)
+                st.write(df.columns)
+
 
                 # Assuming '4. close' is the column containing closing prices
                 # df['4. close'] = pd.to_numeric(df['4. close'], errors='coerce')
