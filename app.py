@@ -5,21 +5,9 @@ import numpy as np
 import pandas as pd
 import os
 
-current_dir = os.path.dirname(__file__)
+# current_dir = os.path.dirname(__file__)
 
-st.title("CryptoFrontier")
-st.markdown(
-    """[![GitHub repo](https://img.shields.io/badge/GitHub-CryptoFrontier-brightgreen)](https://github.com/georgeamccarthy/CryptoFrontier)""" #[![Stars badge](https://img.shields.io/github/stars/georgeamccarthy/CryptoFrontier?style=social)](https://github.com/georgeamccarthy/CryptoFrontier)"""
-)
-st.markdown("CryptoFrontier calculates the efficient frontier for the cryptocurrencies in a portfolio based on historic end of day trading prices (in USD) and suggests more efficient portfolios.")
-
-
-image_path = os.path.join(current_dir, '../docs/frontier_plot.jpeg')
-st.image(image_path, caption="Image credit: https://towardsdatascience.com/roc-curves-and-the-efficient-frontier-7bfa1daf1d9c")
-
-st.markdown("An efficient portfolio has the best possible expected return for its risk. A portfolio on the efficient frontier has an optimal trade-off between risk and reward.")
-
-st.header("Efficient Frontier Optimiser")
+st.title("Efficient Frontier Optimizer")
 
 years = ["2019", "2021"]
 year = st.selectbox(label="Select starting year for cryptocurrency market analysis.", options=years)
@@ -82,11 +70,4 @@ if st.button("Analyse"):
         st.markdown("Minimising your risk, whilst keeping the returns the same, your portfolio should look like:")
         st.dataframe(df_optimal_risk.round(2))
         
-        
-
 st.markdown(
-"""
-###   Disclaimer
-
-*The information provided on this website does not constitute investment advice, financial advice, trading advice, or any other sort of advice and you should not treat any of the website's content as such. We do not recommend that any cryptocurrency should be bought, sold, or held by you. Do conduct your own due diligence and consult your financial advisor before making any investment decisions.*
-""")
