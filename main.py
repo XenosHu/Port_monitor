@@ -9,6 +9,8 @@ import plotly.graph_objects as go
 import plotly.express as px
 import requests
 import csv
+import efficient_frontier
+
 
 def get_data(symbol, start_date, end_date):
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=IAGDKXNPPS0NVXYR'
@@ -24,12 +26,25 @@ def get_data(symbol, start_date, end_date):
     filtered_data = df
     return filtered_data
     
-import efficient_frontier
-import streamlit as st
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import os
+def inner_join_and_select_close(dataframes, column_name):
+    # Inner join all DataFrames based on the specified column name
+    joined_df = None
+    for key, df in dataframes.items():
+        if joined_df is None:
+            joined_df = df
+        else:
+            joined_df = pd.merge(joined_df, df, on=column_name, how='inner', suffixes=('', f'_{key}'))
+
+    # Select only the "close" columns
+    close_columns = [col for col in joined_df.columns if 'close' in col.lower()]
+    result_df = joined_df[close_columns]
+
+    # Rename the columns to remove the "close_" prefix
+    result_df.columns = [col.split('_')[1] for col in result_df.columns]
+
+    return result_df
+
+    
 
 st.title('Nasdaq Portfolio Analysis')
 st.write('Select tickers and their weights to analyze the efficient frontier of your portfolio.')
@@ -58,7 +73,12 @@ if st.button("Analyse"):
         selected_coins = list(buttons.keys())
         coin_percentages = list(buttons.values())
 
-        df = pd.read_csv(data_path)[selected_coins]
+        data = {}
+        
+        for symbol in selected_coins:
+            data[symbol] = get_data(symbol, start_date, end_date)
+        df = inner_join_and_select_close(data, 'date')
+        
         users_risk, users_return = efficient_frontier.users_point(df, coin_percentages)
         df, risk, returns = efficient_frontier.efficient_frontier(df, n_portfolios)
 
