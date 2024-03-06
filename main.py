@@ -28,8 +28,19 @@ def get_data(symbol, start_date, end_date):
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=D43BNKTSJQMGD8GN'
     r = requests.get(url)
     data = r.json()
-
-    time_series = data['Time Series (Daily)']
+    
+    df = pd.DataFrame(data, index=[0])
+    
+    # Allow user to download the DataFrame as CSV
+    csv = df.to_csv(index=False)
+    csv = csv.encode()
+    st.download_button(
+        label="Download CSV",
+        data=csv,
+        file_name="data.csv",
+        mime="text/csv"
+    )
+        time_series = data['Time Series (Daily)']
     filtered_data = [(date, values['1. open'], values['2. high'], values['3. low'], values['4. close'], values['5. volume'])
                      for date, values in time_series.items() 
                      if start_date <= datetime.datetime.strptime(date, '%Y-%m-%d').date() <= end_date]
