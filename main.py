@@ -172,7 +172,7 @@ def main():
                 #                               for i in data.keys() 
                 #                               for j in data[i].keys()},
                 #                              orient='index')
-                df = pd.DataFrame.from_dict(data)
+                df = pd.DataFrame.from_dict(data, orient='index').T
 
                 # Assuming '4. close' is the column containing closing prices
                 st.write(df)
