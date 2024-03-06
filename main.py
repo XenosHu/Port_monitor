@@ -28,7 +28,7 @@ def get_data(symbol, start_date, end_date):
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&outputsize=full&apikey=D43BNKTSJQMGD8GN'
     r = requests.get(url)
     data = r.json()
-    st.write(data)
+
     time_series = data['Time Series (Daily)']
     filtered_data = [(date, values['1. open'], values['2. high'], values['3. low'], values['4. close'], values['5. volume'])
                      for date, values in time_series.items() 
