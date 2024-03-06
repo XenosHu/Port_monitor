@@ -14,8 +14,8 @@ def get_data(symbol, start_date, end_date):
     r = requests.get(url)
     data = r.json()
     time_series = data['Time Series (Daily)']
-    start_timestamp = start_date.timestamp()
-    end_timestamp = end_date.timestamp()
+    start_timestamp = int(start_date.timestamp())
+    end_timestamp = int(end_date.timestamp())
     filtered_data = {date: values for date, values in time_series.items() 
                      if start_timestamp <= datetime.datetime.strptime(date, '%Y-%m-%d').timestamp() <= end_timestamp}
     return filtered_data
