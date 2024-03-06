@@ -141,6 +141,7 @@ def main():
 
     buttons = {}
     if selected_coins != []:
+        st.write(selected_coins)
         st.markdown("Enter the percentage each tickers contributes to your portfolio's total value.")
         for coin_code in selected_coins:
             buttons[coin_code] = st.number_input(coin_code, 0, 100, key=coin_code)
@@ -161,9 +162,9 @@ def main():
                 data = {}
                 for symbol in selected_coins:
                     data[symbol] = get_data(symbol, start_date, end_date)
-                st.write(selected_coins)
+                
                 st.write(data)
-                st.write(button)
+
                 df = pd.DataFrame.from_dict({(i, j): data[i][j] 
                                               for i in data.keys() 
                                               for j in data[i].keys()},
