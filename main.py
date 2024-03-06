@@ -4,8 +4,6 @@ import numpy as np
 import pandas as pd
 import os
 
-
-
 def efficient_frontier(df, n_portfolios=100):
     # Calculate the covariance matrix for the portfolio.
     portfolio_covariance = df.cov()
@@ -76,70 +74,82 @@ def users_point(df, coin_weight):
     return portfolio_std, portfolio_return
 
 def main():
-    st.title("Efficient Frontier Optimiser")
-    st.write('Select stock ticker and their weights to analyze the efficient frontier of your portfolio.')
+    st.title('Cryptocurrency Portfolio Analysis')
+    st.write('Select cryptocurrencies and their weights to analyze the efficient frontier of your portfolio.')
 
-    symbols = ['AAPL', 'ETH', 'ADA']  # Example symbols, you can modify this based on your API data
+    nasdaq_tickers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'FB', 'TSLA', 'NVDA']  # Example tickers, replace with your list of tickers
 
-    start_date = st.date_input('Start Date', datetime.date(2021, 1, 1))
-    end_date = st.date_input('End Date', datetime.date.today())
+    selected_coins = st.multiselect(label="Select cryptocurrencies by exchange code.", options=nasdaq_tickers)
 
-    data = {}
-    for symbol in symbols:
-        data[symbol] = get_data(symbol, start_date, end_date)
+    buttons = {}
+    if selected_coins != []:
+        st.markdown("Enter the percentage each cryptocurrency contributes to your portfolio's total value.")
+        for coin_code in selected_coins:
+            buttons[coin_code] = st.number_input(coin_code, 0, 100, key=coin_code)
 
-    df = pd.DataFrame.from_dict({(i, j): data[i][j] 
-                                  for i in data.keys() 
-                                  for j in data[i].keys()},
-                                 orient='index')
+        n_portfolios = st.slider('Choose number of randomly generated portfolios.', 20, 500, value=200)
 
-    # Assuming '4. close' is the column containing closing prices
-    df['4. close'] = pd.to_numeric(df['4. close'], errors='coerce')
+        if st.button("Analyse"):
+            if len(selected_coins) < 2:
+                st.warning("You must enter at least two cryptocurrencies")
+            elif sum(buttons.values()) != 100:
+                st.warning("Portfolio total is not 100%.")
+            else:
+                coin_percentages = [buttons.get(coin, 0) for coin in selected_coins]
 
-    # Reshape DataFrame
-    df.reset_index(inplace=True)
-    df['index'] = pd.to_datetime(df['index'])
-    df.set_index('index', inplace=True)
-    df.columns = symbols
+                start_date = st.date_input('Start Date', datetime.date(2021, 1, 1))
+                end_date = st.date_input('End Date', datetime.date.today())
 
-    n_portfolios = st.slider('Choose number of randomly generated portfolios.', 20, 500, value=200)
+                data = {}
+                for symbol in selected_coins:
+                    data[symbol] = get_data(symbol, start_date, end_date)
 
-    if st.button("Analyse"):
-        selected_coins = symbols
-        coin_percentages = [1.0 / len(selected_coins)] * len(selected_coins)
+                df = pd.DataFrame.from_dict({(i, j): data[i][j] 
+                                              for i in data.keys() 
+                                              for j in data[i].keys()},
+                                             orient='index')
 
-        ef_df, portfolio_stds, portfolio_returns = efficient_frontier(df[selected_coins], n_portfolios)
+                # Assuming '4. close' is the column containing closing prices
+                df['4. close'] = pd.to_numeric(df['4. close'], errors='coerce')
 
-        fig = go.Figure()
-        for i, row in ef_df.iterrows():
-            fig.add_trace(go.Scatter(x=[row['Risk']], y=[row['Return']], mode='markers', marker=dict(color='blue')))
+                # Reshape DataFrame
+                df.reset_index(inplace=True)
+                df['index'] = pd.to_datetime(df['index'])
+                df.set_index('index', inplace=True)
+                df.columns = selected_coins
+
+                ef_df, portfolio_stds, portfolio_returns = efficient_frontier(df[selected_coins], n_portfolios)
+
+                fig = go.Figure()
+                for i, row in ef_df.iterrows():
+                    fig.add_trace(go.Scatter(x=[row['Risk']], y=[row['Return']], mode='markers', marker=dict(color='blue')))
+
+                users_risk, users_return = users_point(df[selected_coins], coin_percentages)
+                fig.add_trace(go.Scatter(x=[users_risk], y=[users_return], mode='markers', marker=dict(color='green'), name='Your Portfolio'))
+
+                df_optimal_return = find_optimal_return(ef_df, users_risk)
+                fig.add_trace(go.Scatter(x=[df_optimal_return['Risk']], y=[df_optimal_return['Return']], mode='markers', marker=dict(color='red'), name='Optimal Return (same risk)'))
+
+                df_optimal_risk = find_optimal_risk(ef_df, users_return)
+                fig.add_trace(go.Scatter(x=[df_optimal_risk['Risk']], y=[df_optimal_risk['Return']], mode='markers', marker=dict(color='orange'), name='Optimal Risk (same return)'))
+
+                fig.update_layout(title="Efficient Frontier Analysis",
+                                  xaxis_title="Risk (%)",
+                                  yaxis_title="Return (%)",
+                                  legend=dict(x=0, y=1, traceorder='normal'))
+
+                st.plotly_chart(fig)
+                
+                st.markdown(f"**Your portfolio risk is **{users_risk:.1f}%")
+                st.markdown(f"**Your expected daily returns are **{users_return:.2f}%")
         
-        users_risk, users_return = users_point(df[selected_coins], coin_percentages)
-        fig.add_trace(go.Scatter(x=[users_risk], y=[users_return], mode='markers', marker=dict(color='green'), name='Your Portfolio'))
-
-        df_optimal_return = find_optimal_return(ef_df, users_risk)
-        fig.add_trace(go.Scatter(x=[df_optimal_return['Risk']], y=[df_optimal_return['Return']], mode='markers', marker=dict(color='red'), name='Optimal Return (same risk)'))
-
-        df_optimal_risk = find_optimal_risk(ef_df, users_return)
-        fig.add_trace(go.Scatter(x=[df_optimal_risk['Risk']], y=[df_optimal_risk['Return']], mode='markers', marker=dict(color='orange'), name='Optimal Risk (same return)'))
-
-        fig.update_layout(title="Efficient Frontier Analysis",
-                          xaxis_title="Risk (%)",
-                          yaxis_title="Return (%)",
-                          legend=dict(x=0, y=1, traceorder='normal'))
-
-        st.plotly_chart(fig)
-
-        st.markdown(f"**Your portfolio risk is **{users_risk:.1f}%")
-        st.markdown(f"**Your expected daily returns are **{users_return:.2f}%")
-
-        st.header("Maximum returns portfolio (same risk)")
-        st.markdown("Maximising your expected returns, whilst keeping the risk the same, your portfolio should look like:") 
-        st.dataframe(df_optimal_return.round(2))
-        
-        st.header("Minimum risk portfolio (same returns)")
-        st.markdown("Minimising your risk, whilst keeping the returns the same, your portfolio should look like:")
-        st.dataframe(df_optimal_risk.round(2))
+                st.header("Maximum returns portfolio (same risk)")
+                st.markdown("Maximising your expected returns, whilst keeping the risk the same, your portfolio should look like:") 
+                st.dataframe(df_optimal_return.round(2))
+                
+                st.header("Minimum risk portfolio (same returns)")
+                st.markdown("Minimising your risk, whilst keeping the returns the same, your portfolio should look like:")
+                st.dataframe(df_optimal_risk.round(2))
 
 if __name__ == "__main__":
     main()
