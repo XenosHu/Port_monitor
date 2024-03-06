@@ -120,71 +120,13 @@ def main():
     st.title('Nasdaq Portfolio Analysis')
     st.write('Select tickers and their weights to analyze the efficient frontier of your portfolio.')
 
-    nasdaq_tickers = pd.DataFrame(pd.read_csv("nasdaq-listed.csv"))
+    nasdaq_tickers = pd.read_csv("nasdaq-listed.csv")['Symbol']
 
     selected_coins = st.multiselect(label="Select tickers: ", options=nasdaq_tickers)
 
-    # buttons = {}
-    # if selected_coins != []:
-    #     st.markdown("Enter the percentage each tickers contributes to your portfolio's total value.")
-    #     for coin_code in selected_coins:
-    #         buttons[coin_code] = st.number_input(coin_code, 0, 100, key=coin_code)
-
-    #     n_portfolios = st.slider('Choose number of randomly generated portfolios.', 20, 500, value=200)
-
-    #     if st.button("Analyse"):
-    #         if len(selected_coins) < 2:
-    #             st.warning("You must enter at least two tickers")
-    #         elif sum(buttons.values()) != 100:
-    #             st.warning("Portfolio total is not 100%.")
-    #         else:
-    #             coin_percentages = [buttons.get(coin, 0) for coin in selected_coins]
-
-    #             start_date = st.date_input('Start Date', datetime.date(2021, 1, 1))
-    #             end_date = st.date_input('End Date', datetime.date.today())
-
-    #             data = {}
-    #             for symbol in selected_coins:
-    #                 data[symbol] = get_data(symbol, start_date, end_date)
-
-    #             df = pd.DataFrame.from_dict({(i, j): data[i][j] 
-    #                                           for i in data.keys() 
-    #                                           for j in data[i].keys()},
-    #                                          orient='index')
-
-    #             # Assuming '4. close' is the column containing closing prices
-    #             df['4. close'] = pd.to_numeric(df['4. close'], errors='coerce')
-
-    #             # Reshape DataFrame
-    #             df.reset_index(inplace=True)
-    #             df['index'] = pd.to_datetime(df['index'])
-    #             df.set_index('index', inplace=True)
-    #             df.columns = selected_coins
-
-    #             ef_df, portfolio_stds, portfolio_returns = efficient_frontier(df[selected_coins], n_portfolios)
-
-    #             fig = go.Figure()
-    #             for i, row in ef_df.iterrows():
-    #                 fig.add_trace(go.Scatter(x=[row['Risk']], y=[row['Return']], mode='markers', marker=dict(color='blue')))
-
-    #             users_risk, users_return = users_point(df[selected_coins], coin_percentages)
-    #             fig.add_trace(go.Scatter(x=[users_risk], y=[users_return], mode='markers', marker=dict(color='green'), name='Your Portfolio'))
-
-    #             df_optimal_return = find_optimal_return(ef_df, users_risk)
-    #             fig.add_trace(go.Scatter(x=[df_optimal_return['Risk']], y=[df_optimal_return['Return']], mode='markers', marker=dict(color='red'), name='Optimal Return (same risk)'))
-
-    #             df_optimal_risk = find_optimal_risk(ef_df, users_return)
-    #             fig.add_trace(go.Scatter(x=[df_optimal_risk['Risk']], y=[df_optimal_risk['Return']], mode='markers', marker=dict(color='orange'), name='Optimal Risk (same return)'))
-
-    #             fig.update_layout(title="Efficient Frontier Analysis",
-    #                               xaxis_title="Risk (%)",
-    #                               yaxis_title="Return (%)",
-    #                               legend=dict(x=0, y=1, traceorder='normal'))
-
-    #             st.plotly_chart(fig)
     buttons = {}
     if selected_coins != []:
-        st.markdown("Enter the percentage each cryptocurrency contributes to your portfolio's total value.")
+        st.markdown("Enter the percentage each tickers contributes to your portfolio's total value.")
         for coin_code in selected_coins:
             buttons[coin_code] = st.number_input(coin_code, 0, 100, key=coin_code)
 
@@ -192,7 +134,7 @@ def main():
 
         if st.button("Analyse"):
             if len(selected_coins) < 2:
-                st.warning("You must enter at least two cryptocurrencies")
+                st.warning("You must enter at least two tickers")
             elif sum(buttons.values()) != 100:
                 st.warning("Portfolio total is not 100%.")
             else:
@@ -239,7 +181,7 @@ def main():
                                   yaxis_title="Return (%)",
                                   legend=dict(x=0, y=1, traceorder='normal'))
 
-                st.plotly_chart(fig)                
+                st.plotly_chart(fig)                     
                 st.markdown(f"**Your portfolio risk is **{users_risk:.1f}%")
                 st.markdown(f"**Your expected daily returns are **{users_return:.2f}%")
         
